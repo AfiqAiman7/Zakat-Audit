@@ -1,0 +1,16 @@
+node_modules/
+dist/
+out/
+build/
+target/
+.mvn/
+wrapper/
+*.log
+.DS_Store
+.vscode/
+.idea/
+*.class
+*.jar
+*.war
+coverage/
+.angular/
