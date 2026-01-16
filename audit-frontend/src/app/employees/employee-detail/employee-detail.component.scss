@@ -1,0 +1,235 @@
+/* Islamic Finance Employee Detail Styles */
+.employee-detail-container {
+  background-color: var(--bg-main);
+  min-height: 100vh;
+  padding: var(--space-xl);
+  font-family: var(--font-primary);
+  color: var(--neutral-900);
+}
+
+.employee-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--neutral-100);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.employee-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+.employee-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--primary-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--primary-700);
+  margin-right: var(--space-lg);
+}
+
+.employee-info h1 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0 0 var(--space-xs);
+}
+
+.employee-position {
+  font-size: var(--text-md);
+  color: var(--neutral-500);
+  margin: 0;
+}
+
+.employee-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--neutral-700);
+  margin-bottom: var(--space-xs);
+}
+
+.form-input {
+  background: var(--bg-muted);
+  border: 1px solid var(--neutral-300);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  font-family: var(--font-primary);
+  transition: var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: var(--focus-ring);
+  background: var(--bg-card);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.employee-actions {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--neutral-100);
+  display: flex;
+  gap: var(--space-md);
+  justify-content: flex-end;
+}
+
+.btn-save {
+  background: var(--primary-500);
+  color: white;
+  border: none;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-save:hover {
+  background: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-cancel {
+  background: var(--bg-muted);
+  color: var(--neutral-700);
+  border: 1px solid var(--neutral-300);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.btn-cancel:hover {
+  background: var(--neutral-100);
+}
+
+.btn-delete {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.btn-delete:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Payroll Section */
+.payroll-section {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--neutral-100);
+}
+
+.payroll-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--neutral-900);
+  margin-bottom: var(--space-lg);
+}
+
+.payroll-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+.payroll-item {
+  background: var(--bg-muted);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--neutral-100);
+  text-align: center;
+}
+
+.payroll-label {
+  font-size: var(--text-sm);
+  color: var(--neutral-500);
+  margin-bottom: var(--space-xs);
+}
+
+.payroll-value {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--primary-700);
+  font-variant-numeric: tabular-nums;
+}
+
+.payroll-value.income {
+  color: var(--success);
+}
+
+.payroll-value.deduction {
+  color: var(--danger);
+}
+
+.payroll-value.zakat {
+  color: var(--gold-soft);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .employee-detail-container {
+    padding: var(--space-lg);
+  }
+
+  .employee-card {
+    padding: var(--space-lg);
+  }
+
+  .employee-form {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: span 1;
+  }
+
+  .employee-actions {
+    flex-direction: column;
+  }
+
+  .payroll-grid {
+    grid-template-columns: 1fr;
+  }
+}

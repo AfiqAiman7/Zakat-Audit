@@ -1,0 +1,84 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    padding: 1rem;
+}
+
+[data-theme="dark"] .login-container {
+    background: linear-gradient(135deg, #0f1f1a 0%, #064e3b 100%);
+}
+
+.login-card {
+    background: var(--bg-card);
+    padding: 3rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    border: 1px solid var(--neutral-100);
+}
+
+.brand-section {
+    margin-bottom: 2.5rem;
+}
+
+.brand-title {
+    font-size: 2rem;
+    color: var(--primary-700);
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+}
+
+.brand-subtitle {
+    color: var(--neutral-500);
+    font-size: 1.1rem;
+}
+
+.action-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+}
+
+.btn-secondary {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--neutral-300);
+    margin: 0.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.divider span {
+    padding: 0 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.footer {
+    margin-top: 2rem;
+    color: var(--neutral-500);
+    font-size: 0.8rem;
+}

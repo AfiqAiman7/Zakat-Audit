@@ -1,0 +1,199 @@
+<div class="dashboard-container">
+    <!-- Action / Header -->
+    <div class="action-header">
+        <div class="header-left">
+            <h1>Personal Wealth Overview</h1>
+            <p *ngIf="auth.currentUser()" class="user-welcome">
+                Welcome back, <strong>{{ auth.currentUser()?.name }}</strong>
+            </p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-action" routerLink="/calculator">➕ New Calculation</button>
+            <button *ngIf="auth.isGuest()" class="btn-login" (click)="login()">Login with Google</button>
+            <button *ngIf="!auth.isGuest()" class="btn-logout-creative" (click)="logout()">
+                <span class="icon">➜</span> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Net Worth Card Renamed -->
+    <div class="stats-grid">
+        <div class="card stat-card relative group">
+            <div class="flex justify-between items-start">
+                <h3>Total Savings</h3>
+                <!-- Dedicated Asset Edit Button (Restored) -->
+                <button *ngIf="!auth.isGuest()" routerLink="/calculator" [queryParams]="{ editMode: 'assets' }"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-emerald-600"
+                    title="Update Assets (Step 4)">
+                    ✏️
+                </button>
+            </div>
+            <p class="amount" [class.blur-text]="auth.isGuest()">RM {{ auth.isGuest() ? 'X,XXX,XXX' : (netWorth |
+                number:'1.0-0') }}</p>
+            <span class="trend" [class.up]="netWorthTrend >= 0" [class.down]="netWorthTrend < 0">
+                {{ netWorthTrend > 0 ? '↑' : (netWorthTrend < 0 ? '↓' : '' ) }} {{ netWorthTrend | number:'1.0-0' }}% vs
+                    last year </span>
+
+                    <div *ngIf="!auth.isGuest()"
+                        class="mt-3 pt-3 border-t border-slate-100 flex gap-4 text-xs font-medium">
+                        <div class="flex items-center gap-1 text-slate-600">
+                            <span>💵</span> RM {{ totalMoneySavings | number:'1.0-0' }}
+                        </div>
+                        <div class="flex items-center gap-1 text-amber-600">
+                            <span>🌙</span> Gold: RM {{ totalGoldSavings | number:'1.0-0' }}
+                        </div>
+                    </div>
+        </div>
+        <div class="card stat-card">
+            <h3>Monthly Savings</h3>
+            <p class="amount" [class.blur-text]="auth.isGuest()">RM {{ auth.isGuest() ? 'X,XXX' : (monthlySavings |
+                number:'1.0-0') }}</p>
+            <span class="trend" [class.up]="isSavingsTrendGood" [class.bad]="!isSavingsTrendGood">{{ savingsTrend
+                }}</span>
+        </div>
+        <div class="card stat-card zakat-card" [class.paid]="isZakatPaid">
+            <div class="card-icon-bg">
+                <span>🌙</span>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <h3 class="text-amber-800 dark:text-amber-300 font-bold opacity-100">Zakat on Wealth (2025)</h3>
+
+                <!-- Savings Zakat -->
+                <div
+                    class="flex justify-between items-center text-sm border-b border-dashed border-slate-300 pb-2 mb-2">
+                    <span class="text-slate-700 font-medium">
+                        Status
+                        <span class="text-[10px] px-2 py-0.5 rounded ml-1 font-bold" [ngClass]="{
+                                'bg-emerald-100 text-emerald-800': zakatEligibility === 'ELIGIBLE',
+                                'bg-slate-200 text-slate-700': zakatEligibility === 'BELOW_NISAB',
+                                'bg-amber-100 text-amber-800': zakatEligibility === 'HAUL_NOT_MET'
+                            }">
+                            {{ formattedZakatMessage }}
+                        </span>
+                    </span>
+                </div>
+
+                <!-- Total -->
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-base total-label">Total Due:</span>
+                    <p class="amount-sm" [class.blur-text]="auth.isGuest()">
+                        RM {{ auth.isGuest() ? 'X,XXX' : (zakatSavingsDue | number:'1.2-2') }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Only show Payment Actions if actually ELIGIBLE -->
+            <div *ngIf="!auth.isGuest() && zakatEligibility === 'ELIGIBLE' && !isZakatPaid" class="zakat-actions mt-3">
+                <span class="status-badge unpaid">Unpaid</span>
+                <button class="btn-pay-zakat" (click)="markZakatPaid()">Mark Paid</button>
+            </div>
+
+            <!-- Show 'Not Eligible' or 'Locked' status otherwise -->
+            <div *ngIf="!auth.isGuest() && zakatEligibility !== 'ELIGIBLE'" class="mt-4 text-center">
+                <span
+                    class="inline-block px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">
+                    NOT ELIGIBLE
+                </span>
+            </div>
+
+            <div *ngIf="isZakatPaid || auth.isGuest()" class="zakat-status-locked mt-3">
+                <span class="status-badge paid" *ngIf="isZakatPaid">Paid ✅</span>
+                <div *ngIf="auth.isGuest()" class="status-badge locked">Login to Calculate</div>
+            </div>
+
+            <p *ngIf="zakatEligibility === 'ELIGIBLE'"
+                class="text-[10px] text-slate-500 mt-2 italic text-center font-medium">
+                * Based on wealth accrued > 1 year.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="main-grid">
+    <!-- Income vs Expenses Chart -->
+    <div class="card chart-card relative-card">
+        <div class="flex justify-between items-center mb-4">
+            <h3>Income vs Expenses</h3>
+
+            <!-- Date Range Filters -->
+            <div class="flex gap-2 p-1 items-center" *ngIf="!auth.isGuest()">
+                <span class="text-xs text-slate-500 font-medium pl-2">Range:</span>
+                <input type="month" [(ngModel)]="startMonth" (change)="onDateFilterChange()" class="date-input">
+                <span class="text-slate-400">-</span>
+                <input type="month" [(ngModel)]="endMonth" (change)="onDateFilterChange()" class="date-input">
+            </div>
+        </div>
+
+        <!-- Guest Overlay -->
+        <div *ngIf="auth.isGuest()" class="guest-overlay">
+            <div class="overlay-content">
+                <span class="lock-icon">🔒</span>
+                <p>Login to view detailed analytics</p>
+                <button class="btn-login-small" (click)="login()">Login</button>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper" [class.blurred]="auth.isGuest()">
+            <canvas *ngIf="chartLabels.length > 0" #incomeChart></canvas>
+
+            <div *ngIf="chartLabels.length === 0"
+                class="flex flex-col items-center justify-center h-full text-slate-400">
+                <span class="text-2xl mb-2">📊</span>
+                <p class="text-sm">No chart data available yet.</p>
+                <p class="text-xs mt-1">Select a date range or add a calculation.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity / History -->
+    <div class="card list-card relative-card">
+        <h3>History</h3>
+
+        <!-- Guest Overlay -->
+        <div *ngIf="auth.isGuest()" class="guest-overlay">
+            <div class="overlay-content">
+                <span class="lock-icon">🔒</span>
+                <p>Login to view history</p>
+            </div>
+        </div>
+
+        <div class="audit-list" [class.blurred]="auth.isGuest()">
+            <!-- Simple History Edit (Step 1) -->
+            <div class="audit-item" *ngFor="let item of filteredHistoryList">
+                <div class="audit-icon UPDATE"></div>
+                <div class="flex flex-col">
+                    <!-- Content-Aware Display -->
+                    <span class="audit-action" *ngIf="(item.savings || 0) > 0 || (item.goldSavings || 0) > 0">
+                        Assets: RM {{ ((item.savings || 0) + (item.goldSavings || 0)) | number:'1.0-0' }}
+                    </span>
+                    <span class="audit-action" *ngIf="!((item.savings || 0) > 0 || (item.goldSavings || 0) > 0)">
+                        Surplus: RM {{ (item.balance || 0) | number:'1.0-0' }}
+                    </span>
+
+                    <span class="text-[10px] text-slate-400 italic" *ngIf="item.isUpdated">
+                        (Updated)
+                    </span>
+                </div>
+                <span class="audit-meta">{{ getMonthName(item.month) }} {{ item.year }} Calculation</span>
+
+                <!-- Actions (Inside ngFor now) -->
+                <div class="flex items-center gap-2 ml-auto">
+                    <button class="btn-edit-history text-slate-400 hover:text-blue-600" routerLink="/calculator"
+                        [queryParams]="{ editMode: 'assets', month: item.month, year: item.year }"
+                        title="Edit Monthly Details">
+                        ✏️
+                    </button>
+                    <button class="btn-edit-history text-slate-400 hover:text-red-600" (click)="deleteHistory(item.id)"
+                        title="Delete Record">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="fullHistory.length === 0" class="p-4 text-center text-slate-400 text-sm">
+            No history yet. Start a calculation!
+        </div>
+    </div>
+</div>

@@ -1,0 +1,423 @@
+<div class="calculator-container">
+    <!-- Navigation Moved to App Component -->
+
+    <header class="calculator-header">
+        <h1 class="calculator-title">Islamic Financial Calculator</h1>
+        <p class="calculator-subtitle">Plan your finances according to Shariah principles</p>
+    </header>
+
+    <!-- Mode Selection (Step 0) -->
+    <div *ngIf="mode() === 'select'" class="max-w-4xl mx-auto py-12 animate-fade-in">
+        <h2 class="text-2xl font-bold text-center text-slate-800 mb-8">What would you like to do?</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Option 1: Monthly Calculator -->
+            <div (click)="selectMode('monthly')"
+                class="group bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-emerald-500 hover:shadow-xl transition-all cursor-pointer flex flex-col items-center text-center">
+                <div
+                    class="bg-emerald-100 w-16 h-16 rounded-full flex items-center justify-center mb-6 text-2xl group-hover:scale-110 transition-transform">
+                    🧮
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-3 group-hover:text-emerald-700">Monthly Calculator</h3>
+                <p class="text-slate-500 text-sm leading-relaxed">
+                    Calculate your monthly cash flow (Income - Expenses).
+                    <br><span class="text-xs font-semibold text-emerald-600 mt-2 block">Skips Asset Entry</span>
+                </p>
+                <button
+                    class="mt-8 px-6 py-2 bg-emerald-50 text-emerald-700 rounded-lg font-bold group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    Start Calculation
+                </button>
+            </div>
+
+            <!-- Option 2: Total Savings -->
+            <div (click)="selectMode('assets')"
+                class="group bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer flex flex-col items-center text-center">
+                <div
+                    class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-6 text-2xl group-hover:scale-110 transition-transform">
+                    💰
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-3 group-hover:text-blue-700">Update Total Savings</h3>
+                <p class="text-slate-500 text-sm leading-relaxed">
+                    Update your accumulated savings and gold assets.
+                    <br><span class="text-xs font-semibold text-blue-600 mt-2 block">Direct Update</span>
+                </p>
+                <button
+                    class="mt-8 px-6 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    Update Assets
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stepper Navigation (Only for Monthly Mode) -->
+    <div class="mb-8" *ngIf="mode() === 'monthly'">
+        <h3 class="text-center font-bold text-slate-700 mb-6 text-lg">Instructions</h3>
+
+        <div class="flex flex-wrap justify-center gap-4 md:gap-8 max-w-4xl mx-auto">
+            <div *ngFor="let step of steps"
+                class="flex items-center cursor-pointer px-4 py-2 rounded-lg transition-all duration-200"
+                [class.bg-emerald-50]="currentStep() >= step.number" [class.opacity-60]="currentStep() < step.number"
+                [class.hidden]="step.number === 5"> <!-- Hide Step 5 in Stepper for Monthly -->
+
+                <ng-container *ngIf="step.number !== 5">
+                    <span class="font-bold mr-2" [class.text-emerald-600]="currentStep() >= step.number"
+                        [class.text-slate-500]="currentStep() < step.number">
+                        {{ step.number }}:
+                    </span>
+
+                    <span class="font-medium" [class.text-emerald-800]="currentStep() >= step.number"
+                        [class.text-slate-600]="currentStep() < step.number">
+                        {{ step.title }}
+                    </span>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Card -->
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        <div class="p-8">
+
+            <!-- Step 1: Period Selection -->
+            <div *ngIf="currentStep() === 1" [formGroup]="periodForm" class="space-y-6 animate-fade-in">
+                <h2 class="text-xl font-semibold text-emerald-900 border-b border-emerald-100 pb-2">Select Audit Period
+                </h2>
+
+                <div class="p-4 bg-emerald-50 rounded-lg text-emerald-800 text-sm mb-4">
+                    <span class="font-bold">Note:</span> Select the month and year you want to audit. Existing data will
+                    be loaded automatically.
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Month</label>
+                        <select formControlName="month"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                            <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Year</label>
+                        <input type="number" formControlName="year"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50"
+                            placeholder="e.g 2025">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Income -->
+            <div *ngIf="currentStep() === 2" [formGroup]="incomeForm" class="space-y-6 animate-fade-in">
+                <h2 class="text-xl font-semibold text-emerald-900 border-b border-emerald-100 pb-2">Income Details ({{
+                    months[periodForm.value.month! - 1].label }} {{ periodForm.value.year }})</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Basic Salary (RM)</label>
+                        <input type="number" formControlName="basicSalary"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50"
+                            placeholder="e.g 5000">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Fixed Allowance</label>
+                        <input type="number" formControlName="fixedAllowance"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Variable Allowance / OT</label>
+                        <input type="number" formControlName="variableAllowance"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Bonus</label>
+                        <input type="number" formControlName="bonus"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Gift / Windfall</label>
+                        <input type="number" formControlName="gift"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50"
+                            placeholder="e.g. 50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Deductions -->
+            <div *ngIf="currentStep() === 3" [formGroup]="deductionsForm" class="space-y-6 animate-fade-in">
+                <h2 class="text-xl font-semibold text-emerald-900 border-b border-emerald-100 pb-2">Deductions & Zakat
+                </h2>
+
+                <div class="p-4 bg-emerald-50 rounded-lg text-emerald-800 text-sm mb-4">
+                    <span class="font-bold">Note:</span> Leave fields empty to auto-calculate statutory deductions (EPF,
+                    SOCSO, EIS).
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">EPF (KWSP)</label>
+                        <input type="number" formControlName="epf"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50"
+                            placeholder="Auto-calc if empty">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">PCB (Income Tax)</label>
+                        <input type="number" formControlName="pcb"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50"
+                            placeholder="Auto-calc if empty">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Monthly Zakat Payment</label>
+                        <input type="number" formControlName="zakat"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Expenses -->
+            <div *ngIf="currentStep() === 4" [formGroup]="expensesForm" class="space-y-6 animate-fade-in">
+                <h2 class="text-xl font-semibold text-emerald-900 border-b border-emerald-100 pb-2">Expenses &
+                    Commitments</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Housing/Rent</label>
+                        <input type="number" formControlName="housing"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Vehicle/Transport</label>
+                        <input type="number" formControlName="transport"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Food & Groceries</label>
+                        <input type="number" formControlName="food"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Investments</label>
+                        <input type="number" formControlName="investment"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Donations (Sadaqah)</label>
+                        <input type="number" formControlName="donation"
+                            class="w-full rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-slate-50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Assets (Total Savings Mode) -->
+            <div *ngIf="currentStep() === 5" [formGroup]="assetsForm" class="space-y-6 animate-fade-in">
+                <div class="flex items-center justify-between border-b border-blue-100 pb-4">
+                    <h2 class="text-xl font-semibold text-blue-900">Update Total Savings</h2>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+                        {{ months[periodForm.value.month! - 1].label }} {{ periodForm.value.year }}
+                    </span>
+                </div>
+
+                <div class="p-4 bg-blue-50 rounded-lg text-blue-800 text-sm mb-4">
+                    <span class="font-bold">Note:</span> Please update your total accumulated savings (Bank/Cash) and
+                    Gold Assets.
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Total Savings (Bank/Cash)</label>
+                        <input type="number" formControlName="savings"
+                            class="w-full rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500 p-3 bg-slate-50"
+                            placeholder="e.g. 10000">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-amber-700 mb-1">Gold Assets (Value in RM)</label>
+                        <input type="number" formControlName="goldSavings"
+                            class="w-full rounded-lg border-amber-200 focus:border-amber-500 focus:ring-amber-500 p-3 bg-amber-50"
+                            placeholder="Current value of gold held">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Results (Dashboard style) -->
+            <div *ngIf="currentStep() === 6 && result" class="animate-fade-in">
+                <div class="text-center mb-10">
+                    <h2 class="text-gray-500 font-medium uppercase tracking-wider text-xs mb-2">Estimated Net Salary ({{
+                        months[periodForm.value.month! - 1].label }} {{ periodForm.value.year }})
+                    </h2>
+                    <div class="text-5xl font-bold text-emerald-600">RM {{ result.netSalary | number:'1.2-2' }}</div>
+                </div>
+
+                <!-- Health Card -->
+                <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-6 text-white mb-8 shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-emerald-100 text-sm mb-1">Financial Health Score</p>
+                            <h3 class="text-3xl font-bold">{{ financialHealth?.status }} ({{ financialHealth?.score
+                                }}/100)</h3>
+                        </div>
+                        <div class="bg-white/20 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div *ngFor="let comment of financialHealth?.comments"
+                        class="mt-4 text-sm bg-white/10 p-2 rounded border border-white/20">
+                        💡 {{ comment }}
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Financial Breakdown</h3>
+                    <div class="chart-wrapper">
+                        <canvas #breakdownChart></canvas>
+                    </div>
+                </div>
+
+                <!-- Detailed Breakdown Grid -->
+                <!-- Summary Card -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-slate-700 mb-4 flex items-center">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span> Summary
+                        </h4>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Gross Income: </span>
+                                <span class="font-semibold">RM {{ result.grossIncome | number:'1.2-2'
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Total Deductions: </span>
+                                <span class="text-red-500 font-semibold">- RM {{ result.totalDeductions |
+                                    number:'1.2-2' }}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 pt-2 mt-2">
+                                <span class="text-slate-500">Total Expenses: </span>
+                                <span class="text-orange-500 font-semibold">- RM {{ result.totalExpenses |
+                                    number:'1.2-2' }}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 pt-2 mt-2 text-base">
+                                <span class="font-bold text-slate-800">Balance: </span>
+                                <span class="font-bold text-emerald-600">RM {{ result.balance | number:'1.2-2'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gold Zakat Card -->
+                    <div class="zakat-card">
+                        <div class="card-icon-bg">
+                            <span>🌙</span>
+                        </div>
+                        <h4 class="font-bold mb-2 flex items-center text-lg">
+                            Zakat Assessment
+                        </h4>
+                        <div class="mb-4">
+                            <span class="text-sm text-slate-500 block mb-1">Eligibility Status</span>
+                            <span class="status-badge" [class.eligible]="result.zakatDetails.status === 'ELIGIBLE'"
+                                [class.not-eligible]="result.zakatDetails.status !== 'ELIGIBLE'">
+                                {{ result.zakatDetails.status }}
+                            </span>
+                        </div>
+
+                        <div class="border-t border-amber-900/10 pt-3">
+                            <span class="text-sm text-slate-600">Monthly Zakat Due</span>
+                            <div class="zakat-card-value">
+                                RM {{ result.zakatDetails.amountDue | number:'1.2-2' }}
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1">Based on Net Assessable Income</p>
+                        </div>
+                    </div>
+
+                    <!-- Savings Projection Card -->
+                    <div class="savings-card">
+                        <h4 class="font-bold mb-4 text-lg">
+                            <span>📈</span> Wealth Projection
+                        </h4>
+
+                        <div class="mb-3">
+                            <span class="text-sm text-slate-500">Monthly Surplus (Flow)</span>
+                            <div class="text-2xl font-bold text-blue-600">
+                                RM {{ result.balance | number:'1.0-0' }}
+                            </div>
+                            <p class="text-xs text-slate-400">Net Salary - Expenses</p>
+                        </div>
+
+                        <div class="projection-item">
+                            <span class="projection-label">1 Year</span>
+                            <div class="projection-value">
+                                RM {{ ((result.balance || 0) * 12) + (assetsForm.value.savings || 0) +
+                                (assetsForm.value.goldSavings || 0) | number:'1.0-0' }}
+                            </div>
+                            <div class="text-[10px] text-slate-400 text-right">Inc. Assets</div>
+                        </div>
+                        <div class="projection-item">
+                            <span class="projection-label">5 Years</span>
+                            <div class="projection-value">
+                                RM {{ ((result.balance || 0) * 12 * 5) + (assetsForm.value.savings || 0) +
+                                (assetsForm.value.goldSavings || 0) | number:'1.0-0' }}
+                            </div>
+                            <div class="text-[10px] text-slate-400 text-right">Inc. Assets</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Footer Controls (Hidden on Mode selection) -->
+        <div class="bg-slate-50 p-6 border-t border-slate-200 mt-auto flex justify-between" *ngIf="mode() !== 'select'">
+            <button (click)="prevStep()"
+                class="px-6 py-2 rounded-lg text-slate-600 hover:bg-slate-200 font-medium transition-colors">
+                Back
+            </button>
+
+            <div class="flex-1 text-center text-xs text- slate-400 self-center hidden sm:block"
+                *ngIf="mode() === 'monthly' && currentStep() > 1 && currentStep() < 6">
+                Step {{ currentStep() }} of 6
+            </div>
+
+            <!-- Monthly Mode: Next Step Button -->
+            <button (click)="nextStep()" *ngIf="mode() === 'monthly' && currentStep() < 6"
+                class="ml-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium shadow-md transition-all transform hover:translate-y-px">
+                {{ currentStep() === 4 ? 'Calculate Result' : 'Next Step' }}
+            </button>
+
+            <!-- Assets Mode: Next Button (Step 1 -> 5) -->
+            <button (click)="nextStep()" *ngIf="mode() === 'assets' && currentStep() === 1"
+                class="ml-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md transition-all">
+                Next
+            </button>
+
+            <!-- Assets Mode: Save Button (Step 5) -->
+            <button (click)="saveResult()" *ngIf="mode() === 'assets' && currentStep() === 5" [disabled]="isSaving()"
+                class="ml-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md transition-all flex items-center gap-2">
+                <span *ngIf="!isSaving()">💾 Save Assets</span>
+                <span *ngIf="isSaving()">Saving...</span>
+            </button>
+
+            <!-- Result Page (Step 6) Actions -->
+            <div class="flex gap-3 ml-auto" *ngIf="currentStep() === 6">
+                <button (click)="saveResult()" *ngIf="!saveSuccess()" [disabled]="isSaving()"
+                    class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium shadow-md transition-all flex items-center gap-2">
+                    <span *ngIf="!isSaving() && auth.currentUser()">💾 Save Result</span>
+                    <span *ngIf="!isSaving() && !auth.currentUser()">🔐 Login & Save</span>
+                    <span *ngIf="isSaving()">Saving...</span>
+                </button>
+
+                <div *ngIf="saveSuccess()"
+                    class="px-6 py-2 bg-green-100 text-green-700 rounded-lg font-medium border border-green-200 flex items-center gap-2 animate-fade-in">
+                    <span>✅ Saved to Dashboard</span>
+                </div>
+
+                <button (click)="selectMode('select'); currentStep.set(0)"
+                    class="px-6 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium">
+                    Start Over
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

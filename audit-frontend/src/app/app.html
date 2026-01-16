@@ -1,0 +1,17 @@
+<div class="app-container">
+    <div class="nav-bar" *ngIf="router.url !== '/' && router.url !== '/login'">
+        <div class="brand">Personal Finance Audit</div>
+        <div class="nav-right">
+            <div class="links">
+                <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+                <a routerLink="/calculator" routerLinkActive="active">Calculator</a>
+            </div>
+            <button class="theme-toggle" (click)="toggleTheme()"
+                [title]="currentTheme() === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'">
+                <span class="theme-icon">{{ currentTheme() === 'light' ? '🌙' : '☀️' }}</span>
+            </button>
+        </div>
+    </div>
+
+    <router-outlet />
+</div>
