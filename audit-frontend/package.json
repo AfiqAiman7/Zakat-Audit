@@ -8,7 +8,8 @@
     "start:backend": "cd ../audit-backend && mvn spring-boot:run",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build:vercel": "cp src/environments/environment.prod.ts src/environments/environment.ts && ng build"
   },
   "prettier": {
     "printWidth": 100,
